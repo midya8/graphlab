@@ -23,3 +23,4 @@ jobs:
       - run: python examples/render_demo.py /tmp/graph-demo.json --check
       - run: python -m graphlab attribution-demo > /tmp/input-audit.json
       - run: python examples/render_attribution.py /tmp/input-audit.json --check
+      - run: python -m graphlab edge-demo > /tmp/edge-audit.json
