@@ -17,6 +17,11 @@ class CLITests(unittest.TestCase):
             a=subprocess.run([sys.executable,'-m','graphlab','predict',model,pred],capture_output=True,text=True)
             self.assertEqual(a.returncode,0,a.stderr)
             self.assertEqual(len(json.loads(a.stdout)['probabilities']),2)
+            a=subprocess.run([sys.executable,'-m','graphlab','explain',model,pred,'--node','0','--positive','1','--negative','0'],capture_output=True,text=True)
+            self.assertEqual(a.returncode,0,a.stderr)
+            result=json.loads(a.stdout)
+            self.assertAlmostEqual(result['sum_residual'],0.,places=12)
+            self.assertEqual(len(result['input_gradient']),2)
 
     def test_rejects_extra_request_fields(self):
         with tempfile.NamedTemporaryFile(mode='w') as f:
