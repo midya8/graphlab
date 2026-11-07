@@ -13,6 +13,7 @@ def main():
     sub=p.add_subparsers(dest='command',required=True)
     sub.add_parser('demo')
     sub.add_parser('attribution-demo')
+    sub.add_parser('edge-demo')
     t=sub.add_parser('train');t.add_argument('input');t.add_argument('output')
     t.add_argument('--updates',type=int,default=300);t.add_argument('--mode',choices=['gcn','mlp'],default='gcn')
     q=sub.add_parser('predict');q.add_argument('model');q.add_argument('input')
@@ -21,9 +22,18 @@ def main():
     explain.add_argument('--node',type=int,required=True)
     explain.add_argument('--positive',type=int,required=True)
     explain.add_argument('--negative',type=int,required=True)
+    edge=sub.add_parser('edges')
+    edge.add_argument('model');edge.add_argument('input')
+    edge.add_argument('--node',type=int,required=True)
+    edge.add_argument('--positive',type=int,required=True)
+    edge.add_argument('--negative',type=int,required=True)
+    edge.add_argument('--max-forwards',type=int,default=256)
     a=p.parse_args()
     try:
         if a.command=='demo':result=demo()
+        elif a.command=='edge-demo':
+            from .edge_audit import edge_demo
+            result=edge_demo()
         elif a.command=='attribution-demo':
             from .attribution import attribution_demo
             result=attribution_demo()
@@ -41,6 +51,9 @@ def main():
             if a.command=='explain':
                 from .attribution import margin_attribution
                 result=margin_attribution(net,data['features'],data['edges'],a.node,a.positive,a.negative)
+            elif a.command=='edges':
+                from .edge_audit import edge_sensitivity
+                result=edge_sensitivity(net,data['features'],data['edges'],a.node,a.positive,a.negative,a.max_forwards)
             else:result=net.predict(data['features'],data['edges'])
         print(json.dumps(result,indent=2,allow_nan=False))
     except (ValueError,TypeError,OSError) as e:p.exit(2,f'graphlab: {e}\n')
