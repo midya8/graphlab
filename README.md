@@ -53,7 +53,7 @@ The feature MLP's excellent small-validation accuracy does not transfer to this 
 
 ## Exact audits and an exact limitation
 
-34 tests cover every parameter of tiny reference models by finite differences in both modes, sparse-vs-dense forward arithmetic, independent degree normalization, permutation-equivariant predictions and training, mask isolation, stable unclipped cross-entropy, selection vs independent prefix refits, artifacts and CLI. Input-derivative tests add finite differences in both modes, exact two-hop support, permutation/margin reversal, zero-baseline sums, no mutation and the zero-gradient counterexample.
+42 tests cover every parameter of tiny reference models by finite differences in both modes, sparse-vs-dense forward arithmetic, independent degree normalization, permutation-equivariant predictions and training, mask isolation, stable unclipped cross-entropy, selection vs independent prefix refits, artifacts and CLI. Input-derivative tests add finite differences in both modes, exact two-hop support, permutation/margin reversal, zero-baseline sums, no mutation and the zero-gradient counterexample.
 
 A six-cycle and two disconnected triangles are different graphs, but with identical constant node features and degree 2, every normalized neighborhood produces the same feature at every layer. This model gives **identical node probabilities** on both. The counterexample is exact for this architecture and fixture; it is not a claim that all graph neural networks fail on those graphs. No graph-level classifier or universal graph-isomorphism test is implemented.
 
@@ -68,6 +68,28 @@ The hand-set tiny path fixture gives node contributions `[0.181666667, 0.3419079
 For this **bias-free, positively homogeneous ReLU model** and the all-zero feature reference, the signed `x * gradient` sum equals the margin, up to floating-point reduction error. The identity is specific to this score/model/reference and is not an independent explanation-validity certificate. The zero reference need not be realistic. ReLU's derivative at exactly zero is defined as zero.
 
 A separate one-node counterexample has margin ReLU(x): at x=-1 the gradient and `x * gradient` are both zero, yet replacing x with +1 changes the margin from 0 to 1. Local derivatives do not measure arbitrary finite interventions, causal importance, robustness or feature interactions. No new attribution method or causal claim is made.
+
+## Edge deletion is a different question
+
+`edge_sensitivity` / `edges` reruns the fixed model after deleting **each single original edge separately**, recomputing all degrees and normalization. It returns every signed margin change in original edge order. Features and weights stay fixed. This is finite score sensitivity, not an edge gradient, causal importance, joint-deletion guarantee or performance metric.
+
+| Deleted edge in the hand-set path | Node-0 class-1 minus class-0 margin | Change from baseline |
+| --- | ---: | ---: |
+| None | 0.598556213 | 0 |
+| 0-1 | 0.742000000 | +0.143443787 |
+| 1-2 | 0.720500000 | +0.121943787 |
+| 2-3 | 0.615407943 | +0.016851731 |
+| 3-4 | 0.598556213 | 0 |
+| 4-5 | 0.598556213 | 0 |
+
+Node 3's **input-feature derivative is zero**, yet deleting edge 2-3 changes the target margin because node 2's degree changes. Input-feature locality does not imply the same boundary for graph structure or normalization. Deletions 3-4 and 4-5 have no effect in this tiny fixture. No statement of generic edge irrelevance follows from a zero single-deletion effect.
+
+A preflight budget requires `1 + number_of_edges` model forwards before any model call. Default cap 256, supported cap 1-8193. The five-edge demo takes exactly six forwards. No partial top-k list hides edges, and an over-budget request fails rather than silently sampling. Every perturbed graph still adds self loops, so isolated nodes remain valid. This can be expensive on larger graphs; counts are actual forward invocations, not walltime claims.
+
+```sh
+python -m graphlab edge-demo
+python -m graphlab edges /tmp/model.json examples/predict.json --node 0 --positive 1 --negative 0 --max-forwards 256
+```
 
 ## Scope and limits
 
