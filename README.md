@@ -12,6 +12,9 @@ python -m graphlab demo > /tmp/graph-demo.json
 python examples/render_demo.py /tmp/graph-demo.json --check
 python -m graphlab train examples/train.json /tmp/model.json --updates 100
 python -m graphlab predict /tmp/model.json examples/predict.json
+python -m graphlab explain /tmp/model.json examples/predict.json --node 0 --positive 1 --negative 0
+python -m graphlab attribution-demo > /tmp/input-audit.json
+python examples/render_attribution.py /tmp/input-audit.json --check
 ```
 
 Python 3.10+, standard library only. No downloaded graph, pretrained model, account, GPU, external dependency or paid API. The full demo takes about seven seconds on the development machine; runtime depends on hardware/Python.
@@ -50,9 +53,21 @@ The feature MLP's excellent small-validation accuracy does not transfer to this 
 
 ## Exact audits and an exact limitation
 
-23 tests cover every parameter of tiny reference models by finite differences in both modes, sparse-vs-dense forward arithmetic, independent degree normalization, permutation-equivariant predictions and training, mask isolation, stable unclipped cross-entropy, selection vs independent prefix refits, artifacts and CLI.
+34 tests cover every parameter of tiny reference models by finite differences in both modes, sparse-vs-dense forward arithmetic, independent degree normalization, permutation-equivariant predictions and training, mask isolation, stable unclipped cross-entropy, selection vs independent prefix refits, artifacts and CLI. Input-derivative tests add finite differences in both modes, exact two-hop support, permutation/margin reversal, zero-baseline sums, no mutation and the zero-gradient counterexample.
 
 A six-cycle and two disconnected triangles are different graphs, but with identical constant node features and degree 2, every normalized neighborhood produces the same feature at every layer. This model gives **identical node probabilities** on both. The counterexample is exact for this architecture and fixture; it is not a claim that all graph neural networks fail on those graphs. No graph-level classifier or universal graph-isomorphism test is implemented.
+
+## Fixed-model input gradients
+
+![Input-gradient locality and sum audit](assets/input-audit.svg)
+
+`margin_attribution` / `explain` differentiates an explicit target node's chosen class-logit margin with respect to **all supplied input coordinates**, holding weights and graph fixed. It returns full signed gradient and gradient-times-input matrices, per-node sums, the margin, sum residual and the two-hop propagation receptive field. This is not a probability derivative or graph-edge attribution.
+
+The hand-set tiny path fixture gives node contributions `[0.181666667, 0.341907943, 0.074981603, 0, 0, 0]`, summing to margin **0.5985562126120147** with reported residual **0.0**. Node 2's first coordinate contributes **-0.0136082763**, so only showing unsigned magnitudes would change the answer. Nodes 3-5 are beyond the two-layer receptive field and have exactly zero gradient; replacing node 5's features leaves the target margin unchanged. This is an arithmetic fixture, not a learned-model quality result.
+
+For this **bias-free, positively homogeneous ReLU model** and the all-zero feature reference, the signed `x * gradient` sum equals the margin, up to floating-point reduction error. The identity is specific to this score/model/reference and is not an independent explanation-validity certificate. The zero reference need not be realistic. ReLU's derivative at exactly zero is defined as zero.
+
+A separate one-node counterexample has margin ReLU(x): at x=-1 the gradient and `x * gradient` are both zero, yet replacing x with +1 changes the margin from 0 to 1. Local derivatives do not measure arbitrary finite interventions, causal importance, robustness or feature interactions. No new attribution method or causal claim is made.
 
 ## Scope and limits
 
