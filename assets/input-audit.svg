@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="420" viewBox="0 0 920 420" role="img" aria-label="GraphLab fixed-model input gradient audit">
+<rect width="920" height="420" fill="white"/><g font-family="Arial,sans-serif" fill="#251f21">
+<text x="24" y="34" font-size="24">GraphLab | which input coordinates reach node 0?</text>
+<text x="24" y="60" font-size="13">Hand-set 2 x 2 x 2 GCN, fixed graph. Class-1 minus class-0 logit, not a probability or causal effect.</text>
+<path d="M80,117h145" stroke="#c0bebf" stroke-width="2"/>
+<path d="M225,117h145" stroke="#c0bebf" stroke-width="2"/>
+<path d="M370,117h145" stroke="#c0bebf" stroke-width="2"/>
+<path d="M515,117h145" stroke="#c0bebf" stroke-width="2"/>
+<path d="M660,117h145" stroke="#c0bebf" stroke-width="2"/>
+<circle cx="80" cy="117" r="17" fill="#73a89a"/>
+<text x="80" y="122" text-anchor="middle" font-size="14">0</text>
+<text x="80" y="157" text-anchor="middle" font-size="12">target</text>
+<rect x="54" y="208.667" width="52" height="36.333" fill="#73a89a"/>
+<text x="80" y="269" text-anchor="middle" font-size="13">0.181667</text>
+<circle cx="225" cy="117" r="17" fill="#73a89a"/>
+<text x="225" y="122" text-anchor="middle" font-size="14">1</text>
+<text x="225" y="157" text-anchor="middle" font-size="12">1 hop</text>
+<rect x="199" y="176.618" width="52" height="68.382" fill="#73a89a"/>
+<text x="225" y="269" text-anchor="middle" font-size="13">0.341908</text>
+<circle cx="370" cy="117" r="17" fill="#73a89a"/>
+<text x="370" y="122" text-anchor="middle" font-size="14">2</text>
+<text x="370" y="157" text-anchor="middle" font-size="12">2 hops</text>
+<rect x="344" y="230.004" width="52" height="14.996" fill="#73a89a"/>
+<text x="370" y="269" text-anchor="middle" font-size="13">0.074982</text>
+<circle cx="515" cy="117" r="17" fill="#c0bebf"/>
+<text x="515" y="122" text-anchor="middle" font-size="14">3</text>
+<text x="515" y="157" text-anchor="middle" font-size="12">3 hops</text>
+<rect x="489" y="245.000" width="52" height="0.000" fill="#c0bebf"/>
+<text x="515" y="269" text-anchor="middle" font-size="13">0.000000</text>
+<circle cx="660" cy="117" r="17" fill="#c0bebf"/>
+<text x="660" y="122" text-anchor="middle" font-size="14">4</text>
+<text x="660" y="157" text-anchor="middle" font-size="12">4 hops</text>
+<rect x="634" y="245.000" width="52" height="0.000" fill="#c0bebf"/>
+<text x="660" y="269" text-anchor="middle" font-size="13">0.000000</text>
+<circle cx="805" cy="117" r="17" fill="#c0bebf"/>
+<text x="805" y="122" text-anchor="middle" font-size="14">5</text>
+<text x="805" y="157" text-anchor="middle" font-size="12">5 hops</text>
+<rect x="779" y="245.000" width="52" height="0.000" fill="#c0bebf"/>
+<text x="805" y="269" text-anchor="middle" font-size="13">0.000000</text>
+<path d="M24,245H896" stroke="#eae9ea"/>
+<text x="24" y="301" font-size="14">Signed coordinate contributions sum to margin 0.598556212612; residual 0.0.</text>
+<text x="24" y="325" font-size="13">Node 2 includes a negative coordinate contribution; full JSON retains every sign. Nodes 3-5 have zero gradient.</text>
+<path d="M24,345H896" stroke="#eae9ea"/>
+<text x="24" y="372" font-size="14">Zero local gradient is not robustness: ReLU(-1) has gradient 0, but replacing -1 with +1 changes margin 0 to 1.</text>
+<text x="24" y="398" font-size="13">The sum identity follows this bias-free ReLU architecture and zero reference. It does not validate a causal explanation.</text>
+</g></svg>
