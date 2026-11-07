@@ -1,0 +1,1 @@
+{"features":[[1,0],[0,1],[1,0],[0,1]],"edges":[[0,2],[1,3]],"labels":[0,1,0,null],"train_indices":[0,1],"validation_indices":[2],"classes":2}
