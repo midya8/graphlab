@@ -1,0 +1,37 @@
+# Graph, learning and artifact contracts
+
+## Sparse graph semantics
+
+Input features are a rectangular list of finite numeric rows, 1-128 nodes and width 1-16, coordinates [-100,100]. Input edges are an undirected binary list `[i,j]` with integer indices in range. Self loops, duplicates (including reversed duplicates), malformed pairs and booleans fail. The implementation adds exactly one self loop per node internally. Edge-list order/orientation cannot change the operator.
+
+For neighbor sets including self, degree d_i is their size and S_ij=1/sqrt(d_i*d_j) on each neighbor edge. S is symmetric but not generally row-stochastic. `propagate` applies sparse neighbor lists to dense feature rows. Identity propagation in MLP mode ignores validated edges. Tests compare the sparse calculation to an independently constructed dense reference and a three-node path's exact normalization.
+
+## Forward and backward
+
+No biases. W0 is input x hidden and W1 is hidden x classes, both flattened row-major. Compute SX, pre=SX W0, H=ReLU(pre), SH=S H and logits=SH W1. Softmax is row-wise max-shifted. Cross-entropy uses log-sum-exp minus the target logit, not log of a clipped/underflowed probability. The mean is over training nodes, not all nodes.
+
+D is zero on every unselected node and `(P-Y)/number_selected` on training rows. Then gradients are `gW1=(SH)^T D`, `dH=S^T (D W1^T)`, and `gW0=(SX)^T (dH * (pre>0))`. S^T=S for this undirected operator. At exactly zero the ReLU derivative is defined as zero; finite-difference tests avoid that nondifferentiable point.
+
+Two propagation operations yield a two-hop context. Unlabeled/test features may affect training-node logits and gradients through the graph. Their labels cannot. Node permutation tests permute features, edges and masks together; they are numerical equivariance checks, not expressivity guarantees or test-label isolation checks by themselves.
+
+## Fit and checkpoint selection
+
+Labels have one entry per node: `None` or an integer class in [0,C). Training indices are a nonempty unique list; each selected node must have a label. Optional validation indices are also nonempty/unique, disjoint from training and fully labeled. The class count is supplied explicitly, never inferred from hidden labels.
+
+Full-batch Adam: beta1=.9, beta2=.999, epsilon=1e-8 with bias correction; no regularization, dropout or gradient clipping. Updates 1-5000, learning rate [1e-6,.1], seed integer [0,2^32-1]. Hidden width 1-32 and classes 2-8. The model uses symmetric propagation in both layers or identity in both layers.
+
+Without validation, return the last update. With validation, score initialization and every completed update by validation cross-entropy; accept strictly smaller loss only, preserving earliest ties. Validation labels never enter optimizer gradients. Return selected weights plus a report containing selected update, final update, selected validation loss, sparse training-loss history and the final unselected inference artifact. Initialization can win. The demo reports both selected and final test metrics only after all fitting and selection complete.
+
+The demo removes every test label before fitting. A test changes non-gradient labels and checks identical gradients/fit weights; another checks every selected checkpoint against independent Adam prefix refits. Validation labels are intentionally used for checkpoint selection, so changing them can change the returned checkpoint, not the optimization trajectory.
+
+## Artifact and requests
+
+`graphlab_v1` has exactly `format`, `inputs`, `hidden`, `classes`, `mode`, `parameters`. Weights have exactly inputs*hidden + hidden*classes finite numeric entries. Mode is `gcn` or `mlp`; unknown keys/versions and invalid dimensions fail. It stores no graph, node identifiers, labels, optimizer state or fitted normalization. Normalization is recomputed from each supplied inference graph. Prediction can run another graph with the same feature width, but this is capability, not evidence of transfer quality. Node-index remapping remains the caller's responsibility.
+
+CLI train JSON requires exactly features/edges/labels/train_indices/classes, plus optional validation_indices. CLI predict JSON has exactly features/edges. Invalid requests exit 2 without a traceback. Train writes an inference artifact; it is not an exact-resume checkpoint.
+
+## Evidence boundaries
+
+The synthetic community graph was generated using true classes, as documented. The graph-scrambled control relabels adjacency only, deliberately breaking label/feature alignment without changing graph isomorphism class or the degree multiset. This is a descriptive control, not identification of a causal mechanism. Small validation masks can be unrepresentative, illustrated by the MLP's validation/test gap. Selected and last checkpoints are both retained to prevent hiding that behavior.
+
+For the expressivity counterexample, each graph is degree-2 regular. With self loops S rows sum to 1; identical constant features remain constant after S, so shared nodewise transforms produce identical outputs. This is directly proved for this architecture without relying on a numerical near-equality. The fixture's maximum difference is exactly zero. No graph-level pooling is implemented.
