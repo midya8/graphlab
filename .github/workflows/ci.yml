@@ -21,3 +21,5 @@ jobs:
           python-version: '3.11'
       - run: python -m graphlab demo > /tmp/graph-demo.json
       - run: python examples/render_demo.py /tmp/graph-demo.json --check
+      - run: python -m graphlab attribution-demo > /tmp/input-audit.json
+      - run: python examples/render_attribution.py /tmp/input-audit.json --check
