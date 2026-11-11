@@ -14,6 +14,7 @@ def main():
     sub.add_parser('demo')
     sub.add_parser('attribution-demo')
     sub.add_parser('edge-demo')
+    sub.add_parser('joint-demo')
     t=sub.add_parser('train');t.add_argument('input');t.add_argument('output')
     t.add_argument('--updates',type=int,default=300);t.add_argument('--mode',choices=['gcn','mlp'],default='gcn')
     q=sub.add_parser('predict');q.add_argument('model');q.add_argument('input')
@@ -28,9 +29,19 @@ def main():
     edge.add_argument('--positive',type=int,required=True)
     edge.add_argument('--negative',type=int,required=True)
     edge.add_argument('--max-forwards',type=int,default=256)
+    joint=sub.add_parser('joint')
+    joint.add_argument('model');joint.add_argument('input')
+    joint.add_argument('--node',type=int,required=True)
+    joint.add_argument('--positive',type=int,required=True)
+    joint.add_argument('--negative',type=int,required=True)
+    joint.add_argument('--max-deletions',type=int,default=2)
+    joint.add_argument('--max-forwards',type=int,default=4096)
     a=p.parse_args()
     try:
         if a.command=='demo':result=demo()
+        elif a.command=='joint-demo':
+            from .joint import joint_demo
+            result=joint_demo()
         elif a.command=='edge-demo':
             from .edge_audit import edge_demo
             result=edge_demo()
@@ -51,6 +62,9 @@ def main():
             if a.command=='explain':
                 from .attribution import margin_attribution
                 result=margin_attribution(net,data['features'],data['edges'],a.node,a.positive,a.negative)
+            elif a.command=='joint':
+                from .joint import joint_sensitivity
+                result=joint_sensitivity(net,data['features'],data['edges'],a.node,a.positive,a.negative,a.max_deletions,a.max_forwards)
             elif a.command=='edges':
                 from .edge_audit import edge_sensitivity
                 result=edge_sensitivity(net,data['features'],data['edges'],a.node,a.positive,a.negative,a.max_forwards)
