@@ -5,7 +5,7 @@ A new browser and CLI audit enumerates every original-edge subset up to a declar
 
 51 Python tests retain the original 42. Separate dense/bitmask checks cover 180 seeded graph/model cases; 70-digit Decimal checks all 16 counterexample sets. Python/JavaScript agree on 46 complete reports and 559 subsets. Actual NumPy independently checks every target logit vector. Five Node/actual-Chrome tests cover 24 responsive views, 568 complete subset selections, six natively replayed trusted downloads and input invalidation. An isolated wheel exercises seven modules and all nine commands via both entrypoints. Original fits, scores and audit figures remain unchanged.
 
-Publication checks are in progress. Do not treat a source branch or a locally tested page as a verified deployed release. [Joint audit contract and source ledger](JOINT.md).
+[Joint audit contract, commands, numerical evidence and source ledger](JOINT.md). The browser files in `docs/` can also be served locally without a prediction server. CI checks source, original demo figures, browser controls, the optional dense reference and an outside-checkout installed wheel.
 
 
 **A graph neural network whose context, gradients and blind spots are visible.** Dependency-free two-layer graph convolution, masked node supervision, validation-only checkpoint selection and matched feature/topology controls.
