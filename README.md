@@ -1,4 +1,12 @@
 # GraphLab
+## Joint deletion inspector: one edge at a time can miss the change
+
+A new browser and CLI audit enumerates every original-edge subset up to a declared budget, recomputes all degree normalization and retains every target logit, class and signed margin effect. The residual separates the actual joint change from the sum of singleton changes. In a disclosed four-node control all five single deletions preserve class 1, but deleting e1/e3 changes class to 0 while singleton extrapolation still predicts class 1. The stronger minimum-margin pair remains visible. This is finite fixed-model sensitivity, not causal attribution or a formal robustness certificate.
+
+51 Python tests retain the original 42. Separate dense/bitmask checks cover 180 seeded graph/model cases; 70-digit Decimal checks all 16 counterexample sets. Python/JavaScript agree on 46 complete reports and 559 subsets. Actual NumPy independently checks every target logit vector. Five Node/actual-Chrome tests cover 24 responsive views, 568 complete subset selections, six natively replayed trusted downloads and input invalidation. An isolated wheel exercises seven modules and all nine commands via both entrypoints. Original fits, scores and audit figures remain unchanged.
+
+Publication checks are in progress. Do not treat a source branch or a locally tested page as a verified deployed release. [Joint audit contract and source ledger](JOINT.md).
+
 
 **A graph neural network whose context, gradients and blind spots are visible.** Dependency-free two-layer graph convolution, masked node supervision, validation-only checkpoint selection and matched feature/topology controls.
 
@@ -53,7 +61,7 @@ The feature MLP's excellent small-validation accuracy does not transfer to this 
 
 ## Exact audits and an exact limitation
 
-42 tests cover every parameter of tiny reference models by finite differences in both modes, sparse-vs-dense forward arithmetic, independent degree normalization, permutation-equivariant predictions and training, mask isolation, stable unclipped cross-entropy, selection vs independent prefix refits, artifacts and CLI. Input-derivative tests add finite differences in both modes, exact two-hop support, permutation/margin reversal, zero-baseline sums, no mutation and the zero-gradient counterexample.
+The original 42 tests cover every parameter of tiny reference models by finite differences in both modes, sparse-vs-dense forward arithmetic, independent degree normalization, permutation-equivariant predictions and training, mask isolation, stable unclipped cross-entropy, selection vs independent prefix refits, artifacts and CLI. Input-derivative tests add finite differences in both modes, exact two-hop support, permutation/margin reversal, zero-baseline sums, no mutation and the zero-gradient counterexample.
 
 A six-cycle and two disconnected triangles are different graphs, but with identical constant node features and degree 2, every normalized neighborhood produces the same feature at every layer. This model gives **identical node probabilities** on both. The counterexample is exact for this architecture and fixture; it is not a claim that all graph neural networks fail on those graphs. No graph-level classifier or universal graph-isomorphism test is implemented.
 
