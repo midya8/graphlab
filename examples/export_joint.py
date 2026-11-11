@@ -1,7 +1,7 @@
 """Deterministic browser controls and complete native reference reports."""
 import json,random,sys
 from pathlib import Path
-from graphlab.core import Network,artifact
+from graphlab.core import Network,artifact,load
 from graphlab.joint import joint_demo,joint_sensitivity
 from graphlab.attribution import attribution_demo
 
@@ -29,7 +29,7 @@ def references():
         e=[[j,k]for j in range(nodes)for k in range(j+1,nodes)if rnd.random()<.55][:7]
         out.append({'title':'seeded-'+str(i),'description':'Finite parity control','input':{'model':artifact(net),'features':x,'edges':e,'node':i%nodes,'positive':1,'negative':0,'max_deletions':i%4}})
     for c in out:
-        v=c['input'];c['report']=joint_sensitivity(v['model']and __import__('graphlab.core',fromlist=['load']).load(v['model']),v['features'],v['edges'],v['node'],v['positive'],v['negative'],v['max_deletions'],4096)
+        v=c['input'];c['report']=joint_sensitivity(load(v['model']),v['features'],v['edges'],v['node'],v['positive'],v['negative'],v['max_deletions'],4096)
     return out
 
 
