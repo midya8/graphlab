@@ -24,3 +24,40 @@ jobs:
       - run: python -m graphlab attribution-demo > /tmp/input-audit.json
       - run: python examples/render_attribution.py /tmp/input-audit.json --check
       - run: python -m graphlab edge-demo > /tmp/edge-audit.json
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: stable
+      - run: PYTHONPATH=. python examples/export_joint.py --check
+      - run: node --test tests/*.cjs
+        env:
+          PYTHONPATH: .
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+  installed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install wheel setuptools
+      - run: python examples/check_installed.py
+  dense-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install numpy==2.2.6
+      - run: PYTHONPATH=. python examples/reference_joint.py
