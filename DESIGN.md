@@ -1,4 +1,4 @@
-# Graph, learning and artifact contracts
+# GraphLab graph, learning and model format
 
 ## Sparse graph semantics
 
