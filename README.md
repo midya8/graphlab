@@ -1,14 +1,13 @@
 # GraphLab
-## Joint deletion inspector: one edge at a time can miss the change
+GraphLab trains a two-layer graph convolutional network on a small synthetic graph. It implements degree-normalized propagation, masked node supervision and validation-only checkpoint selection without runtime dependencies, and keeps matched feature-only and scrambled-graph controls visible.
 
-A new browser and CLI audit enumerates every original-edge subset up to a declared budget, recomputes all degree normalization and retains every target logit, class and signed margin effect. The residual separates the actual joint change from the sum of singleton changes. In a disclosed four-node control all five single deletions preserve class 1, but deleting e1/e3 changes class to 0 while singleton extrapolation still predicts class 1. The stronger minimum-margin pair remains visible. This is finite fixed-model sensitivity, not causal attribution or a formal robustness certificate.
+For a fixed model, three audits ask different questions:
 
-51 Python tests retain the original 42. Separate dense/bitmask checks cover 180 seeded graph/model cases; 70-digit Decimal checks all 16 counterexample sets. Python/JavaScript agree on 46 complete reports and 559 subsets. Actual NumPy independently checks every target logit vector. Five Node/actual-Chrome tests cover 24 responsive views, 568 complete subset selections, six natively replayed trusted downloads and input invalidation. An isolated wheel exercises seven modules and all nine commands via both entrypoints. Original fits, scores and audit figures remain unchanged.
+- Input gradients: how does a target class-logit margin change locally with each input coordinate?
+- Single-edge deletion: what changes after deleting each edge and recomputing normalization?
+- [Joint deletion](JOINT.md): what changes after deleting every edge subset within a declared budget, and where does adding singleton effects give the wrong answer?
 
-[Joint audit contract, commands, numerical evidence and source ledger](JOINT.md). The browser files in `docs/` can also be served locally without a prediction server. CI checks source, original demo figures, browser controls, the optional dense reference and an outside-checkout installed wheel.
-
-
-**A graph neural network whose context, gradients and blind spots are visible.** Dependency-free two-layer graph convolution, masked node supervision, validation-only checkpoint selection and matched feature/topology controls.
+[DESIGN.md](DESIGN.md) defines the graph, training masks and model format. These are finite-model calculations, not causal attribution or a general robustness guarantee.
 
 ![Synthetic graph and expressivity audit](assets/graph-audit.svg)
 
@@ -59,7 +58,7 @@ A separate **train-only nearest-class-centroid** feature control fits 8 numbers 
 
 The feature MLP's excellent small-validation accuracy does not transfer to this test split; validation selection is no guarantee of representative evaluation. These are descriptive fixture results, not causal contributions or a general GCN ranking. Validation selection and the centroid control were added after inspecting the initial fixed-budget arms and their overfit losses. This is a **development fixture**, not an untouched benchmark or a multi-seed study. No architecture or seed sweep was run.
 
-## Exact audits and an exact limitation
+## Tests and an architecture limitation
 
 The original 42 tests cover every parameter of tiny reference models by finite differences in both modes, sparse-vs-dense forward arithmetic, independent degree normalization, permutation-equivariant predictions and training, mask isolation, stable unclipped cross-entropy, selection vs independent prefix refits, artifacts and CLI. Input-derivative tests add finite differences in both modes, exact two-hop support, permutation/margin reversal, zero-baseline sums, no mutation and the zero-gradient counterexample.
 
@@ -98,6 +97,15 @@ A preflight budget requires `1 + number_of_edges` model forwards before any mode
 python -m graphlab edge-demo
 python -m graphlab edges /tmp/model.json examples/predict.json --node 0 --positive 1 --negative 0 --max-forwards 256
 ```
+
+## Joint-edge deletion
+
+The browser and CLI audit enumerates every original-edge subset up to a declared budget, recomputes all degree normalization and retains every target logit, class and signed margin effect. The residual separates the actual joint change from the sum of singleton changes. In a disclosed four-node control all five single deletions preserve class 1, but deleting e1/e3 changes class to 0 while singleton extrapolation still predicts class 1. The stronger minimum-margin pair remains visible. This is finite fixed-model sensitivity, not causal attribution or a formal robustness certificate.
+
+51 Python tests retain the original 42. Separate dense/bitmask checks cover 180 seeded graph/model cases; 70-digit Decimal checks all 16 counterexample sets. Python/JavaScript agree on 46 complete reports and 559 subsets. Actual NumPy independently checks every target logit vector. Five Node/actual-Chrome tests cover 24 responsive views, 568 complete subset selections, six natively replayed trusted downloads and input invalidation. An isolated wheel exercises seven modules and all nine commands via both entrypoints. Original fits, scores and audit figures remain unchanged.
+
+[Joint audit contract, commands, numerical evidence and source ledger](JOINT.md). The browser files in `docs/` can also be served locally without a prediction server. CI checks source, original demo figures, browser controls, the optional dense reference and an outside-checkout installed wheel.
+
 
 ## Scope and limits
 
